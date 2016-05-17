@@ -1,3 +1,4 @@
 build
-dist
+dist/*
+!dist/tak.min.js
 node_modules
