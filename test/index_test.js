@@ -1,5 +1,5 @@
 /* eslint max-len: 0 */
-
+import { size } from 'lodash';
 import { expect } from 'chai';
 
 import {
@@ -7,6 +7,7 @@ import {
   getState,
   tpsToJson,
   jsonToTps,
+  ptnToJson,
 } from '../lib/index';
 
 import { BLACK, WHITE } from '../lib/constants';
@@ -110,5 +111,62 @@ describe('PTN', () => {
     ]);
 
     expect(jsonToTps(state)).to.equal('[TPS "1,x,2C,x2/x3,2112S,x/x5/x,1221,12,x2/x5 1 8"]');
+  });
+
+  const ptn = `[Event "First Video for Tak Strategy"]
+[Site "PlayTak.com"]
+[Date "2015.11.15"]
+[Round "1"]
+[Player1 "BenWo"]
+[Player2 "JT (Mongoose1021)"]
+[Size "5"]
+[Result "0-R"]
+
+1. e5 {comment1} a1
+2.  c3  d2 {comment2}
+3.  e3  Cd3
+4.  Cc2 {comment3} d4 {comment4}
+5.  c2> Sc2
+6.  Sd1 c4
+7.  a4  b4
+8.  a4> c4<
+9.  c5  c4
+10. c5- d4<
+11. c3+ 2b4>
+12. Sa4 c5
+13. b1  d3<
+14. 1d2< d5
+15. Sb5 c3+
+16. a4> a4
+17. b5> a5
+18. 2c5>11 b5
+19. 2e5< 4c4+
+20. 2b4> e5
+21. 4d5> 1c5-
+22. Sd5 3c4>12 0-R`;
+
+  it('builds initial state from size', () => {
+    const model = ptnToJson(ptn);
+    expect(model.initialState).to.deep.equal(getInitialState(5));
+  });
+
+  it('parses comments', () => {
+    const model = ptnToJson(ptn);
+    expect(model.moves[1][0].comment).to.equal('comment1');
+    expect(model.moves[2][1].comment).to.equal('comment2');
+    expect(model.moves[4][0].comment).to.equal('comment3');
+    expect(model.moves[4][1].comment).to.equal('comment4');
+  });
+
+  it('parses move list', () => {
+    const model = ptnToJson(ptn);
+    expect(size(model.moves)).to.equal(22);
+  });
+
+  it('parses tags', () => {
+    const model = ptnToJson(ptn);
+    expect(model.tags.Site).to.equal('PlayTak.com');
+    expect(model.tags.Date).to.equal('2015.11.15');
+    expect(model.tags.Round).to.equal('1');
   });
 });
