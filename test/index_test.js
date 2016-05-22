@@ -1,5 +1,8 @@
 /* eslint max-len: 0 */
-import { size } from 'lodash';
+import {
+  size,
+  toArray,
+} from 'lodash';
 import { expect } from 'chai';
 
 import {
@@ -98,6 +101,14 @@ describe('PTN', () => {
     });
   });
 
+  describe('moving capstone on stop of standing stone', () => {
+    const state = tpsToJson('[TPS "1,2,x2/x4/x4/1C,2S,x2 1 3"]');
+    it('flattens standing stone', () => {
+      const newState = getState(state, 'a1>');
+      expect(getSquare(newState.board, 'b1')).to.deep.equal(['2', '1C']);
+    });
+  });
+
   it('builds new state from list of moves', () => {
     let state = tpsToJson('[TPS "x5/x3,2112S,x/x5/x,1221,x3/x5 1 1"]');
     state = getState(state, [
@@ -152,15 +163,16 @@ describe('PTN', () => {
 
   it('parses comments', () => {
     const model = ptnToJson(ptn);
-    expect(model.moves[1][0].comment).to.equal('comment1');
-    expect(model.moves[2][1].comment).to.equal('comment2');
-    expect(model.moves[4][0].comment).to.equal('comment3');
-    expect(model.moves[4][1].comment).to.equal('comment4');
+    expect(size(model.comments)).to.equal(4);
+    expect(model.comments['1 1']).to.equal('comment1');
+    expect(model.comments['2 2']).to.equal('comment2');
+    expect(model.comments['4 1']).to.equal('comment3');
+    expect(model.comments['4 2']).to.equal('comment4');
   });
 
   it('parses move list', () => {
     const model = ptnToJson(ptn);
-    expect(size(model.moves)).to.equal(22);
+    expect(size(model.moves)).to.equal(44);
   });
 
   it('parses tags', () => {
@@ -168,5 +180,14 @@ describe('PTN', () => {
     expect(model.tags.Site).to.equal('PlayTak.com');
     expect(model.tags.Date).to.equal('2015.11.15');
     expect(model.tags.Round).to.equal('1');
+  });
+
+  it('gets correct final state', () => {
+    const model = ptnToJson(ptn);
+    const moves = toArray(model.moves);
+    const finalState = getState(model.initialState, moves);
+
+    const finalTps = jsonToTps(finalState);
+    expect(finalTps).to.equal('[TPS "2,2,112,1S,22221S/2,x,212,2,12C/x4,1/x2,21C,2,x/1,1,x,1S,x 1 23"]');
   });
 });
