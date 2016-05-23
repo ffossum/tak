@@ -1,4 +1,4 @@
-/* eslint max-len: 0 */
+/* eslint-disable no-unused-expressions, max-len */
 import {
   size,
   toArray,
@@ -175,11 +175,12 @@ describe('PTN', () => {
     expect(size(model.moves)).to.equal(44);
   });
 
-  it('parses tags', () => {
+  it('parses tags and converts them to lowercase', () => {
     const model = ptnToJson(ptn);
-    expect(model.tags.Site).to.equal('PlayTak.com');
-    expect(model.tags.Date).to.equal('2015.11.15');
-    expect(model.tags.Round).to.equal('1');
+    expect(model.tags.Site).to.be.undefined;
+    expect(model.tags.site).to.equal('PlayTak.com');
+    expect(model.tags.date).to.equal('2015.11.15');
+    expect(model.tags.round).to.equal('1');
   });
 
   it('gets correct final state', () => {
